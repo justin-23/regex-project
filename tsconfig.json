@@ -1,0 +1,14 @@
+{
+    "compilerOptions": 
+    {
+      "noImplicitAny": true,
+      "sourceMap": true,
+      "target": "es2021",
+      "module": "commonjs",
+      "preserveConstEnums": true,
+      "moduleResolution": "classic",
+      "lib": [  "es6", "es2021", "dom" ],
+      "esModuleInterop": true,
+    }
+  }
+  
