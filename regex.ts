@@ -1,10 +1,3 @@
-import { isClassStaticBlockDeclaration } from "../../node_modules/typescript/lib/typescript";
-
-let message: string = 'Hello World';
-console.log (message);
-
-
-
 interface Operator {
     precd: number,
     astv: string,
