@@ -1,7 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-let message = 'Hello World';
-console.log(message);
 const OPS = {
     ['|']: { precd: 1, astv: "left", arity: 2 },
     ['*']: { precd: 3, astv: "right", arity: 1 },
@@ -83,14 +79,9 @@ const postfixToTree = function (str, tr = { els: [], op: '&' }) {
     }
     return end;
 };
-const treeToStateList = function (tree, alphabet) {
-
-    const convert = function(tree) {
-        if (typeof tree == "string")
-            return [alphabet.indices[char]];
-        let insides = tree.els.reduce((acc, tr) => acc.concat(convert(tr)), []);
-    }
-    
+const treeToStateList = function (tree) {
+    if (typeof tree == "string")
+        return [tree];
     switch (tree.op) {
         case '|':
             return [
