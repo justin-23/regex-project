@@ -315,8 +315,8 @@ class NFA {
         return new NFA(sigma, delta, a.start, bAcceptShifted)
     }
 
-    static star(b: NFA) : NFA {
-        let eps = NFA.EPSILON();
+    static star(b : NFA) : NFA {
+        let eps =  NFA.EPSILON();
         const {sigma, deltaRowTemplate, shiftSize, aDelta, bDelta} = NFA.prepareOperations(eps, b);
         
         const bAcceptShifted = b.accept.map((state: number) => state + shiftSize);
