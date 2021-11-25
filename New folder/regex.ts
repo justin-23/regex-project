@@ -10,6 +10,9 @@ const OPS: Record<string, Operator> = {
     ['&']: { precd: 2, astv: "right", arity: 2},
     
 }
+
+//converts regex format from infix to postfix
+//ex. a|b -> ab|
 const infixToPostfix = function(str: string) : string {
 	
     const opCompare = function(opStr1: string, opStr2: string) : number {
@@ -71,6 +74,7 @@ interface ExprTree<O, S> /* operator, symbol */ {
     op: O,
 }
 
+//converts from a postfix regex to an expression tree
 const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els: [], op: '&'}) : ExprTree<string, string> {
     const arr: string[] = str.split('');
     const stack: (string | ExprTree<string, string>)[] = [];
@@ -95,13 +99,14 @@ const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els:
     return end;
 }
 
-const treeToStateList = function(tree: ExprTree<string, string>| string) : string[] {
+/*const treeToStateList = function(tree: ExprTree<string, string>| string) : string[] {
     if (typeof tree == "string") return [tree];
     switch (tree.op) {
         case '|':
             return [
                 "open OR state",
                 ... treeToStateList(tree.els[0]),
+                "break OR state",
                 ... treeToStateList(tree.els[1]),
                 "close OR state",
             ]; 
@@ -118,11 +123,133 @@ const treeToStateList = function(tree: ExprTree<string, string>| string) : strin
             ];
         default: break;
     }   
+}*/
+
+/*const findCloseState = function(arr: string[]) : [number, number] {
+
+    const stack: string[] = [];
+
+    if(arr[0] === "open OR state"){
+
+        let brk: number;
+        
+        for(let i = 0; i < arr.length; i++){
+
+            if(arr[i].length > 1){
+                if(arr[i] === "close kleiene star"){
+                    if(stack.pop() !== "open kleiene star"){
+                        return [-1, -1];
+                    }
+                }
+                else if(arr[i] === "break OR state"){
+                    if(stack.pop() !== "open OR state"){
+                        return [-1, -1];
+                    }
+                    if(stack.length == 0){
+                        brk = i;
+                    }
+                    stack.push(arr[i]);
+                }
+                else if(arr[i] === "close OR state"){
+                    if(stack.pop() !== "break OR state"){
+                        return [-1, -1];
+                    }
+                }
+                else{
+                    stack.push(arr[i]);
+                }
+            }
+
+            if(stack.length == 0){
+                return [i, brk];
+            }
+        }
+    }
+
+    for(let i = 0; i < arr.length; i++){
+        if(arr[i].length > 1){
+            if(arr[i] === "close kleiene star"){
+                if(stack.pop() !== "open kleiene star"){
+                    return [-1, -1];
+                }
+            }
+            else if(arr[i] === "break OR state"){
+                if(stack.pop() !== "open OR state"){
+                    return [-1, -1];
+                }
+                stack.push(arr[i]);
+            }
+            else if(arr[i] === "close OR state"){
+                if(stack.pop() !== "break OR state"){
+                    return [-1, -1];
+                }
+            }
+            else{
+                stack.push(arr[i]);
+            }
+        }
+
+        if(stack.length == 0){
+            return [i, -1];
+        }
+    }
+}*/
+
+/*const stateListToNFA = function(arr: string[]) : NFA {
+    if(arr.length == 0){
+        return NFA.CHAR('');
+    }
+    if(arr[0].length > 1){
+        const [a, b] = findCloseState(arr);
+        if(b == -1){
+            return NFA.concatenate(NFA.star(stateListToNFA(arr.slice(1, a))), stateListToNFA(arr.slice(a+1)));
+        }
+        return NFA.concatenate(NFA.union(stateListToNFA(arr.slice(1, b)), stateListToNFA(arr.slice(b+1, a))), stateListToNFA(arr.slice(a+1)));;
+    }
+    return NFA.concatenate(NFA.CHAR(arr[0]), stateListToNFA(arr.slice(1)));
+}*/
+
+/*class NFA_{
+    s: string;
+
+    constructor(c: string){
+        this.s = c;
+    }
+
+    static union(a: NFA_, b: NFA_){
+        return new NFA_("(" + a.s + ")|(" + b.s + ")");
+    }
+
+    static concatenate(a: NFA_, b: NFA_){
+        return new NFA_("(" + a.s + ")&(" + b.s + ")");
+    }
+
+    static star(a: NFA_){
+        return new NFA_("(" + a.s + ")*");
+    }
+
+}*/
+
+const treeToNFA = function(tree: ExprTree<string, string>| string) : NFA {
+    if (typeof tree == "string") return NFA.CHAR(tree);
+    switch (tree.op) {
+        case '|':
+            return NFA.union(treeToNFA(tree.els[0]), treeToNFA(tree.els[1]));
+        case '*':
+            return NFA.star(treeToNFA(tree.els[0]));
+        case '&':
+            return NFA.concatenate(treeToNFA(tree.els[0]), treeToNFA(tree.els[1]));
+        default: break;
+    }
 }
+
 let str = "(1|2*|34)|3|(12|3)";
 let fixed = infixToPostfix(str);
 let tree = postfixToTree(fixed);
-let arr = treeToStateList(tree);
+let nfa = treeToNFA(tree);
+//let arr = treeToStateList(tree);
+
+console.log(str);
 console.log(fixed);
 console.log(tree);
-console.log(arr);
+//console.log(arr);
