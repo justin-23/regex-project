@@ -1,3 +1,5 @@
+// Author justin lee oct nov 2021
+// recommented nov 2021 to add more expanation
 interface Array<T> {
     deepReverse(): Array<T>;
     unique(): Array<T>;
@@ -158,7 +160,7 @@ class Alphabet {
 
 
 
-let x = [, Array]
+
 
 function complexMap<Q>(types: Function[], obj: any, f: Function, parents: any[] = []) : Q {
     const [thisType, ...restTypes] = types;
@@ -167,7 +169,7 @@ function complexMap<Q>(types: Function[], obj: any, f: Function, parents: any[] 
     switch (thisType) {
         case undefined: 
             return f(obj);
-        case Array: // map and our custom map is defined on array and object types... nice :)
+        case Array: // have got to fix
             mapF = Array.prototype.map; break;
         case Object: 
             console.log("object");
@@ -218,10 +220,10 @@ Object.prototype.ascribeStructure = function(types: Function[]) {
     }
 }
 */
-let m = complexMap([Object, Array], {a: [1, 2, 3, 4, 5], b: [2, 9]}, (x: any) => x*2);
+//let m = complexMap([Object, Array], {a: [1, 2, 3, 4, 5], b: [2, 9]}, (x: any) => x*2);
 
-console.log(m);
-console.log([1, 2, 3])
+//console.log(m);
+//console.log([1, 2, 3])
 let lastDeltaState;
 class NFA {
     
