@@ -1,3 +1,5 @@
+// Author justin lee & ben chong
+
 import { NFA } from './nfa';
 
 interface Operator {
@@ -16,7 +18,6 @@ const OPS: Record<string, Operator> = {
 }
 
 //converts regex format from infix to postfix
-//ex. a|b -> ab|
 const infixToPostfix = function(str: string) : string {
 	
     const opCompare = function(opStr1: string, opStr2: string) : number {
@@ -100,7 +101,7 @@ interface ExprTree<O, S> /* operator, symbol */ {
     op: O,
 }
 
-//converts from a postfix regex to an expression tree
+// author justin lee & ben chong
 const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els: [], op: '&'}) : ExprTree<string, string> | string {
     const arr: string[] = str.split('');
     const stack: (string | ExprTree<string, string>)[] = [];
@@ -256,6 +257,7 @@ const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els:
 
 }*/
 
+// function author Ben Chong
 const treeToNFA = function(tree: ExprTree<string, string>| string) : NFA {
     if (typeof tree == "string") return NFA.CHAR(tree);
     switch (tree.op) {

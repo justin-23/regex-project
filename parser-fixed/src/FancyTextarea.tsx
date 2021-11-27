@@ -1,3 +1,4 @@
+//  Author justin lee
 import React from 'react';
 
 interface TextareaProps {
@@ -15,12 +16,10 @@ class FancyTextarea extends React.Component<TextareaProps, TextareaState> {
         this.props.onchange(contents);
     }
 
- 
-    
     render () {
         return (
             <div className = "textarea_outer">
-                <textarea     data-gramm="false" placeholder={this.props.placeholder}  onChange={(e) => this.onchange(e)}></textarea>
+                <textarea  maxLength={30} data-gramm="false" placeholder={this.props.placeholder}  onChange={(e) => this.onchange(e)}></textarea>
             </div>
         )
     }

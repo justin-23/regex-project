@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/regex-project/parser-fixed/build/static/css/main.d439a3df.chunk.css",
-    "main.js": "/regex-project/parser-fixed/build/static/js/main.fe38f2e9.chunk.js",
-    "main.js.map": "/regex-project/parser-fixed/build/static/js/main.fe38f2e9.chunk.js.map",
+    "main.js": "/regex-project/parser-fixed/build/static/js/main.60ae3c9c.chunk.js",
+    "main.js.map": "/regex-project/parser-fixed/build/static/js/main.60ae3c9c.chunk.js.map",
     "runtime-main.js": "/regex-project/parser-fixed/build/static/js/runtime-main.c1b23f84.js",
     "runtime-main.js.map": "/regex-project/parser-fixed/build/static/js/runtime-main.c1b23f84.js.map",
     "static/js/2.fcad3614.chunk.js": "/regex-project/parser-fixed/build/static/js/2.fcad3614.chunk.js",
@@ -15,6 +15,6 @@
     "static/js/runtime-main.c1b23f84.js",
     "static/js/2.fcad3614.chunk.js",
     "static/css/main.d439a3df.chunk.css",
-    "static/js/main.fe38f2e9.chunk.js"
+    "static/js/main.60ae3c9c.chunk.js"
   ]
 }

@@ -1,5 +1,6 @@
-import React from 'react';
+//  Author justin lee
 
+import React from 'react';
 import OutputRow, {OutputRowProps} from './OutputRow';
 import OutputList from './OutputList';
 

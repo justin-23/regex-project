@@ -46,6 +46,7 @@ class GUI extends React.Component<GUIProps, GUIState> {
     updateSuccessValue() {
         this.setState({success: this.state.evalFunction(this.state.testStr)})
     }
+    
     onKeyDown(e: any) {
         if (e.keyCode === 13)
             {
