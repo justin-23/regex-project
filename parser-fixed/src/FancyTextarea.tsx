@@ -1,18 +1,14 @@
-import React, { SyntheticEvent } from 'react';
+import React from 'react';
 
 interface TextareaProps {
     placeholder: string;
     onchange: (str: string) => void;
 }
 
-interface TextareaState {
-}
+interface TextareaState { }
 
 class FancyTextarea extends React.Component<TextareaProps, TextareaState> {
 
-    constructor(props: any) {
-        super(props);
-    }
     onchange (e: any) {
         const contents = e.target.value;
         
@@ -24,7 +20,7 @@ class FancyTextarea extends React.Component<TextareaProps, TextareaState> {
     render () {
         return (
             <div className = "textarea_outer">
-                <textarea placeholder={this.props.placeholder}  onChange={(e) => this.onchange(e)}></textarea>
+                <textarea     data-gramm="false" placeholder={this.props.placeholder}  onChange={(e) => this.onchange(e)}></textarea>
             </div>
         )
     }

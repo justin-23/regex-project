@@ -9,11 +9,12 @@ interface OutputRowProps {
 interface OutputRowState { }
 class OutputRow extends React.Component<OutputRowProps, OutputRowState> {
     render() {
+        const {pattStr, testStr} = this.props;
         return (
             <tr className="output_row">
-                <td>/{this.props.pattStr}/</td>
-                <td>"{this.props.testStr}"</td>
-                <td>{this.props.success ? "Accept" : "Reject"}</td>
+                <td>{pattStr ? `/${pattStr}/` : "(empty)"}</td>
+                <td>{testStr ? `"${testStr}"` : "(empty)"}</td>
+                <td className={"success_"+this.props.success}>{this.props.success ? "Accept" : "Reject"}</td>
             </tr>
         )
     }

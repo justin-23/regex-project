@@ -6,6 +6,7 @@ import OutputList from './OutputList';
 interface DisplayProps {
     pattStr: string;
     testStr: string;
+    success: boolean;
     setAddToList: (f: (props: OutputRowProps) => void) => void;
 
 }
@@ -16,18 +17,13 @@ interface DisplayState {
 }
 
 class Display extends React.Component<DisplayProps, DisplayState> {
-    constructor(props: any) {
+    constructor(props: DisplayProps) {
         super(props);
+        const {pattStr, testStr, success} = props;
         this.state = {
             outputList: [{
-                pattStr: "test1",
-                testStr: "okay", 
-                success: true,
-            },{
-                pattStr: "tesaaaaat1",
-                testStr: "aaaa", 
-                success: false,
-            },],
+                pattStr, testStr, success,
+            }],
             addToList: (props: OutputRowProps) => 0,
         }
     }
@@ -39,11 +35,16 @@ class Display extends React.Component<DisplayProps, DisplayState> {
     
     render() {
 
+        const {pattStr, testStr, success} = this.props;
+
         return (
-            <OutputList setAddToList={((addToList: (props: OutputRowProps) => void) => {
+            <table id="displayTable">
+            <OutputRow pattStr={pattStr} testStr={testStr} success={success} />
+            <OutputList setAddToList={(addToList: (props: OutputRowProps) => void) => {
                 this.setState({addToList});
                 this.props.setAddToList(addToList);
-            }).bind(this)}/> 
+            }}/> 
+            </table>
         )
     }
 

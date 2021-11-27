@@ -1,3 +1,5 @@
+import { NFA } from './nfa';
+
 interface Operator {
     precd: number,
     astv: string,
@@ -6,8 +8,10 @@ interface Operator {
 
 const OPS: Record<string, Operator> = {
     ['|']: { precd: 1, astv: "left", arity: 2},
-    ['*']: { precd: 3, astv: "right", arity: 1},
+    ['*']: { precd: 4, astv: "right", arity: 1},
     ['&']: { precd: 2, astv: "right", arity: 2},
+    ['?']: { precd: 3, astv: "left", arity: 1},
+    ['+']: { precd: 3, astv: "left", arity: 1},
     
 }
 
@@ -16,7 +20,7 @@ const OPS: Record<string, Operator> = {
 const infixToPostfix = function(str: string) : string {
 	
     const opCompare = function(opStr1: string, opStr2: string) : number {
-    	return String.prototype.localeCompare.call(OPS[opStr1].precd, OPS[opStr2].precd); 
+    	return String.prototype.localeCompare.call(OPS[opStr1].precd, ""+OPS[opStr2].precd); 
     }
 
     const outQueue: string[] = [];
@@ -28,42 +32,64 @@ const infixToPostfix = function(str: string) : string {
 
     const shouldReduceOp = function(op: string) : boolean {
     	const top: string = getStackTop();
-        if (!top || top == '(') return false;
+        if (!top || top === '(') return false;
         const order: number = opCompare(top, op);
-        return  (order == 1 || order == 0 && OPS[op].astv == "left");
+        return  (order === 1 || (order === 0 && OPS[op].astv === "left"));
     }
     
     const shouldReduceParen = function() : boolean {
-    	return getStackTop() != '(';
+    	return getStackTop() !== '(';
     }
     // added expresion end met
-    let expressionEndMet = false;
+    let expressionEndMetArr: boolean[] = [];
+    let depth: number = 0;
+    let escapehatch:number = 50;
     str.split('').forEach(char => {
+        if (! escapehatch) return;
         switch (char) {
-            case '|': case '*':
-                while (shouldReduceOp(char)) {
-                    outQueue.unshift(opStack.pop());
+            case '*':case '?':case'+':
+                outQueue.unshift('x');
+                while (shouldReduceOp(char)  && escapehatch--) {
+                    outQueue.unshift(opStack.pop() as string);
                 }
-                expressionEndMet = false;
+                
+                expressionEndMetArr[depth] = true;
+                outQueue.unshift(char); break;
+            case '|': 
+                while (shouldReduceOp(char)  && escapehatch--) {
+                    outQueue.unshift(opStack.pop() as string);
+                }
+                expressionEndMetArr[depth] = false;
                 opStack.push(char);
                 break;
             case '(':
                 opStack.push(char);
-                expressionEndMet = false;
+                
+                depth++;
+                expressionEndMetArr[depth] = false;
+                
                 break;
             case ')':
-                while (shouldReduceParen()) {
-                    outQueue.unshift(opStack.pop());
+                while (shouldReduceParen() && escapehatch--) {
+                    outQueue.unshift(opStack.pop() as string);
                 }
+                depth--;
+
                 opStack.pop();
+                
+                if (expressionEndMetArr[depth]) opStack.push('&');
+                expressionEndMetArr[depth] = true;
+                
                 break;
             default:
                 outQueue.unshift(char);
-                if (expressionEndMet) opStack.push('&');
-                expressionEndMet = true;
+                //if (getStackTop() === '*' || getStackTop() === '?') outQueue.unshift(opStack.pop() as string);
+                if (expressionEndMetArr[depth]) opStack.push('&');
+                expressionEndMetArr[depth] = true;
         }
     });
-    
+
+    if (! escapehatch) return "";
     let op;
     while (op = opStack.pop()) outQueue.unshift(op);
 	return outQueue.reverse().join('');
@@ -75,17 +101,17 @@ interface ExprTree<O, S> /* operator, symbol */ {
 }
 
 //converts from a postfix regex to an expression tree
-const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els: [], op: '&'}) : ExprTree<string, string> {
+const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els: [], op: '&'}) : ExprTree<string, string> | string {
     const arr: string[] = str.split('');
     const stack: (string | ExprTree<string, string>)[] = [];
 
     const isOp = (char: string): boolean => Object.keys(OPS).indexOf(char) >= 0;
     arr.forEach(char => {
         if (isOp(char)) {
-            let arity = OPS[char].arity;
+            //let arity = OPS[char].arity;
             let newTr = {
                 op: char,
-                els: stack.splice(-arity),
+                els: stack.splice(-2/*arity*/),
             };
             stack.push(newTr);
         } else {
@@ -93,7 +119,7 @@ const postfixToTree = function(str: String, tr: ExprTree<string, string> = {els:
         }
     });
     let end = stack[0];
-    if (typeof end == "string") {
+    if (typeof end == "string" && end.length > 1) {
         throw new Error('tree parsed incorrectly');
     }
     return end;
@@ -237,30 +263,30 @@ const treeToNFA = function(tree: ExprTree<string, string>| string) : NFA {
             return NFA.union(treeToNFA(tree.els[0]), treeToNFA(tree.els[1]));
         case '*':
             return NFA.star(treeToNFA(tree.els[0]));
+        case '?':
+            return NFA.maybe(treeToNFA(tree.els[0]));
+        case '+':
+            return NFA.some(treeToNFA(tree.els[0]));
         case '&':
             return NFA.concatenate(treeToNFA(tree.els[0]), treeToNFA(tree.els[1]));
         default: break;
     }
+    return NFA.CHAR("");
 }
 
-const Regex = {
-    infixToPostfix, postfixToTree, treeToNFA
+const convertRegexToNFAFunction = function(str: string) : (str: string) => boolean {
+    
+    try {
+        const fixed = infixToPostfix(str);
+        const tree = postfixToTree(fixed);
+        const nfa = treeToNFA(tree);
+        console.log({fixed, tree, nfa});
+        nfa.fixEpsilonClosure();
+        return nfa.eval.bind(nfa);
+    } catch (e) {
+        return (s: string) => false;
+    }
 }
-let str = "(1|2*|34)|3|(12|3)";
-let fixed = infixToPostfix(str);
-let tree = postfixToTree(fixed);
-let nfa = treeToNFA(tree);
-//let arr = treeToStateList(tree);
-
-console.log(str);
-console.log(fixed);
-console.log(tree);
-//console.log(arr);
-
 export {
-    Regex,
-}
-
-export type {
-    ExprTree, OPS,
+    convertRegexToNFAFunction,
 }
